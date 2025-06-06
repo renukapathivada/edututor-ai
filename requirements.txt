@@ -4,3 +4,4 @@ transformers
 sentence-transformers
 pandas
 torch==2.2.2
+numpy==1.26.4
