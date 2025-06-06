@@ -3,3 +3,4 @@ firebase-admin
 transformers
 sentence-transformers
 pandas
+torch==2.2.2
