@@ -2,14 +2,13 @@ import streamlit as st
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, db
+import pandas as pd
 from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
 from sentence_transformers import SentenceTransformer, util
 
 # Firebase setup
-import json
 cred_dict = dict(st.secrets["firebase"])
-cred_dict["private_key"] = cred_dict["private_key"].replace("\n", "\\n")
-
+cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
 cred = credentials.Certificate(cred_dict)
 
 firebase_admin.initialize_app(cred, {
