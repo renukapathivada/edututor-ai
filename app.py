@@ -8,7 +8,13 @@ from sentence_transformers import SentenceTransformer, util
 
 # Firebase setup
 cred_dict = dict(st.secrets["firebase"])
+
+# Correctly convert escaped newlines to actual newlines in the private key
 cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+
+# Optional: check your dictionary keys (except private_key)
+st.write(list(cred_dict.keys()))
+
 cred = credentials.Certificate(cred_dict)
 
 firebase_admin.initialize_app(cred, {
