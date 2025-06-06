@@ -14,10 +14,9 @@ cred = credentials.Certificate(dict(st.secrets["firebase"]))
 # })
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred, {
-        "databaseURL": st.secrets["firebase"]["https://edututor-ai-370b5-default-rtdb.asia-southeast1.firebasedatabase.app/"]
+        "databaseURL": "https://edututor-ai-370b5-default-rtdb.asia-southeast1.firebasedatabase.app/"
     })
-
-
+    
 st.set_page_config(page_title="EduTutor AI", layout="wide")
 
 # Load models once
