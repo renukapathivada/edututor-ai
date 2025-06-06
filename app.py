@@ -7,10 +7,11 @@ from sentence_transformers import SentenceTransformer, util
 
 # Firebase setup
 import json
-st.write(type(st.secrets["firebase"]))
-st.write(st.secrets["firebase"])
+cred_dict = dict(st.secrets["firebase"])
+cred_dict["private_key"] = cred_dict["private_key"].replace("\n", "\\n")
 
-cred = credentials.Certificate(st.secrets["firebase"])
+cred = credentials.Certificate(cred_dict)
+
 firebase_admin.initialize_app(cred, {
     "databaseURL": "https://edututor-ai-370b5-default-rtdb.asia-southeast1.firebasedatabase.app/"
 })
