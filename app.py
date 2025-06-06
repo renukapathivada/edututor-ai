@@ -16,7 +16,7 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred, {
         "databaseURL": "https://edututor-ai-370b5-default-rtdb.asia-southeast1.firebasedatabase.app/"
     })
-    
+
 st.set_page_config(page_title="EduTutor AI", layout="wide")
 
 # Load models once
@@ -38,23 +38,33 @@ if role == "Student":
     name = st.text_input("Name")
     topic = st.text_input("Topic (e.g., Photosynthesis)")
     style = st.selectbox("Learning Style", ["Visual", "Auditory", "Hands‑on"])
+
     if st.button("Generate Lesson & Quiz"):
         lesson_prompt = f"Explain {topic} simply for a {style} learner."
         lesson = generator(lesson_prompt, max_length=200)[0]["generated_text"]
-        st.subheader("📘 Lesson")
-        st.write(lesson)
-
         quiz_prompt = f"Create a short-answer question about {topic}."
         question = generator(quiz_prompt, max_length=100)[0]["generated_text"]
+
+        # Store in session_state
+        st.session_state['lesson'] = lesson
+        st.session_state['question'] = question
+
+    if 'lesson' in st.session_state:
+        st.subheader("📘 Lesson")
+        st.write(st.session_state['lesson'])
+
+    if 'question' in st.session_state:
         st.subheader("📝 Quiz Question")
-        st.write(question)
+        st.write(st.session_state['question'])
 
         answer = st.text_area("Your Answer")
+
         if st.button("Submit Answer"):
-            ideal_prompt = f"Perfect short answer to: {question}"
+            ideal_prompt = f"Perfect short answer to: {st.session_state['question']}"
             ideal_ans = generator(ideal_prompt, max_length=100)[0]["generated_text"]
             emb = semantic_model.encode([ideal_ans, answer], convert_to_tensor=True)
             score = util.pytorch_cos_sim(emb[0], emb[1]).item()
+
             if score > 0.85:
                 outcome = "✅ Excellent!"
             elif score > 0.65:
@@ -63,18 +73,20 @@ if role == "Student":
                 outcome = "🧐 Needs more detail."
             else:
                 outcome = "⚠️ Review and try again."
+
             st.markdown(f"**Similarity Score:** {score:.2f}")
             st.success(f"Feedback: {outcome}")
 
             db.reference("students").push({
                 "name": name,
                 "topic": topic,
-                "question": question,
+                "question": st.session_state['question'],
                 "answer": answer,
                 "score": round(score * 100, 2),
                 "feedback": outcome,
                 "timestamp": datetime.now().isoformat()
             })
+
 
 elif role == "Teacher":
     st.header("🧑‍🏫 Teacher Dashboard")
